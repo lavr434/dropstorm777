@@ -1,0 +1,203 @@
+<%- include('partials/header',{page:'home',pageTitle:'Кейсы CS2 — DropStorm'}) %>
+<main class="page-content">
+
+  <!-- HERO -->
+  <section class="hero-section">
+    <div>
+      <p class="hero-tag">Лучшие кейсы CS2</p>
+      <h1 class="hero-h1">Открой свой<span>Легендарный Дроп</span></h1>
+      <p class="hero-sub">Испытай удачу и забери самые редкие скины!</p>
+      <a href="#cases" class="btn btn-gold btn-lg">⚡ Открыть кейс</a>
+    </div>
+    <div>
+      <!-- Featured row -->
+      <div style="display:flex;gap:12px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;">
+        <% cases.slice(0,5).forEach(c=>{ %>
+        <div class="case-card <%=c.featured?'featured':''%>" onclick="window.location='/open/<%=c.id%>'" style="flex-shrink:0;width:155px;">
+          <img src="<%=c.image%>" alt="<%=c.name%>" class="case-img" onerror="this.style.display='none'"/>
+          <div class="case-name"><%=c.name%></div>
+          <div class="case-price"><%=c.price.toLocaleString('ru-RU')%>₽</div>
+          <button class="btn btn-gold btn-sm btn-full">Открыть</button>
+        </div>
+        <% }) %>
+      </div>
+      <div class="qty-tabs" style="margin-top:14px;">
+        <button class="qty-tab active" data-qty="1">x1</button>
+        <button class="qty-tab" data-qty="2">x2</button>
+        <button class="qty-tab" data-qty="3">x3</button>
+        <button class="qty-tab" data-qty="5">x5</button>
+        <button class="qty-tab" data-qty="10">x10</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROULETTE (hidden until opened) -->
+  <div id="roulette-section" style="display:none;margin-bottom:20px;">
+    <div class="roulette-section">
+      <div class="roulette-header">
+        <span class="roulette-t">🎰 Рулетка дропа</span>
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('roulette-section').style.display='none'">✕</button>
+      </div>
+      <div class="roulette-wrap" id="roulette-wrap">
+        <div class="roulette-pointer"></div>
+        <div class="roulette-track" id="roulette-track"></div>
+      </div>
+      <div class="roulette-status" id="roulette-status">
+        <div class="roulette-spinner"></div><span>Открываем...</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ALL CASES -->
+  <div class="section-title" id="cases" style="margin-top:8px;">Все кейсы</div>
+  <div class="cases-grid">
+    <% cases.forEach(c=>{ %>
+    <div class="case-card <%=c.featured?'featured':''%>" onclick="window.location='/open/<%=c.id%>'">
+      <img src="<%=c.image%>" alt="<%=c.name%>" class="case-img" onerror="this.style.display='none'"/>
+      <div class="case-name"><%=c.name%></div>
+      <div class="case-price"><%=c.price.toLocaleString('ru-RU')%>₽</div>
+      <button class="btn btn-gold btn-sm btn-full" onclick="event.stopPropagation();openCase(<%=c.id%>,<%=c.price%>)">⚡ Открыть</button>
+    </div>
+    <% }) %>
+  </div>
+
+  <!-- WIDGETS -->
+  <div class="widgets-grid">
+    <!-- Bonus -->
+    <div class="widget-card">
+      <div class="widget-t">🎁 Ежедневный Бонус</div>
+      <div class="widget-sub">Получите бесплатные монеты каждые 24 часа</div>
+      <div class="bonus-amount">+300 <span style="font-size:22px;">🪙</span></div>
+      <div class="bonus-timer">⏱ <span id="bonus-timer">--:--:--</span></div>
+      <button class="btn btn-gold btn-sm" onclick="claimBonus()">Получить</button>
+      <div class="bonus-deco">📦</div>
+    </div>
+    <!-- Promo -->
+    <div class="widget-card">
+      <div class="widget-t">🏷️ Промокод</div>
+      <div class="widget-sub">Введите промокод и получите бонус</div>
+      <div class="promo-wrap">
+        <input class="promo-inp" id="promo-inp" placeholder="Введите промокод" onkeydown="if(event.key==='Enter')activatePromo()"/>
+        <button class="promo-go" onclick="activatePromo()">›</button>
+      </div>
+      <div class="promo-tags">
+        <span class="promo-tag" onclick="document.getElementById('promo-inp').value='STORM2024'">STORM2024 <span class="promo-bonus">+500₽</span></span>
+        <span class="promo-tag" onclick="document.getElementById('promo-inp').value='THUNDER100'">THUNDER100 <span class="promo-bonus">+1000₽</span></span>
+        <span class="promo-tag" onclick="document.getElementById('promo-inp').value='DROPSTORM'">DROPSTORM <span class="promo-bonus">+300₽</span></span>
+      </div>
+    </div>
+    <!-- Quests -->
+    <div class="widget-card" style="cursor:pointer" onclick="window.location='/quests'">
+      <div class="widget-t">⚔️ Задания</div>
+      <div class="widget-sub">Выполняйте задания и получайте награды</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:6px;">1 / 3 выполнено</div>
+      <div class="progress-bg"><div class="progress-fill" style="width:33%"></div></div>
+      <button class="btn btn-gold btn-sm" style="margin-top:12px;">Смотреть</button>
+      <div class="bonus-deco" style="font-size:60px;">🪖</div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-bar">
+    <div class="stat-item"><div class="stat-icon">📦</div><div class="stat-num" data-target="345678">345 678</div><div class="stat-label">Открыто кейсов</div></div>
+    <div class="stat-item"><div class="stat-icon">👥</div><div class="stat-num" data-target="128765">128 765</div><div class="stat-label">Пользователей</div></div>
+    <div class="stat-item"><div class="stat-icon">🟢</div><div class="stat-num" id="stats-online" data-target="23456">23 456</div><div class="stat-label">Онлайн</div></div>
+    <div class="stat-item"><div class="stat-icon">🎁</div><div class="stat-num" data-target="9876543">9 876 543</div><div class="stat-label">Выиграно скинов</div></div>
+    <div class="stat-item"><div class="stat-icon">⭐</div><div class="stat-num" data-target="4.8" data-float="1">4.8</div><div class="stat-label">Рейтинг</div></div>
+  </div>
+
+</main>
+<%- include('partials/footer') %>
+
+<script>
+const CASES = <%- JSON.stringify(cases) %>;
+let openQty = 1;
+let isOpening = false;
+const RC = {legendary:'var(--c-legend)',epic:'var(--c-epic)',rare:'var(--c-rare)',uncommon:'var(--c-uncommon)',common:'var(--c-common)'};
+
+document.querySelectorAll('.qty-tab').forEach(b=>b.addEventListener('click',function(){
+  document.querySelectorAll('.qty-tab').forEach(x=>x.classList.remove('active'));
+  this.classList.add('active'); openQty=parseInt(this.dataset.qty);
+}));
+
+function buildRoulette(items, winnerIdx) {
+  const track = document.getElementById('roulette-track');
+  track.style.transition='none'; track.style.transform='translateX(0)'; track.innerHTML='';
+  for(let i=0;i<52;i++){
+    const item = i===38 ? items[winnerIdx] : items[Math.floor(Math.random()*items.length)];
+    const el=document.createElement('div'); el.className='roulette-item';
+    el.style.borderColor=RC[item.rarity]||'#333';
+    el.innerHTML=`<div class="ri-ph" style="border-color:${RC[item.rarity]}">${item.emoji||'🔫'}</div>
+      <div class="ri-gun">${item.gun}</div>
+      <div class="ri-name" style="color:${RC[item.rarity]}">${item.skin}</div>`;
+    track.appendChild(el);
+  }
+}
+
+function openCase(caseId, price) {
+  if(isOpening) return;
+  const caseData = CASES.find(c=>c.id===caseId);
+  if(!caseData) return;
+  isOpening=true;
+
+  const sec=document.getElementById('roulette-section');
+  sec.style.display='block'; sec.scrollIntoView({behavior:'smooth',block:'center'});
+  document.getElementById('roulette-status').innerHTML='<div class="roulette-spinner"></div><span>Открываем...</span>';
+  triggerFlash();
+
+  fetch(`/api/open/${caseId}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({qty:openQty})})
+    .then(r=>r.json()).then(data=>{
+      if(!data.success){showToast(data.error||'Ошибка','error');isOpening=false;return;}
+      const winner=data.items[0];
+      const wIdx=Math.floor(Math.random()*8);
+      buildRoulette(caseData.items||[winner], wIdx);
+
+      // animate
+      const quick=false;
+      const wrap=document.getElementById('roulette-wrap');
+      const itemW=113, offset=38*itemW-(wrap.offsetWidth/2-54)+(Math.random()*50-25);
+      setTimeout(()=>{
+        const track=document.getElementById('roulette-track');
+        track.style.transition='transform 5.8s cubic-bezier(.1,.2,.05,1)';
+        track.style.transform=`translateX(-${offset}px)`;
+      },150);
+
+      setTimeout(()=>{
+        document.getElementById('roulette-status').innerHTML=
+          `<span style="color:var(--gold);font-weight:800;">🎉 Выпало: ${winner.gun} | ${winner.skin}</span>`;
+        document.querySelectorAll('.roulette-item')[38]?.classList.add('winner');
+        showToast(`🎉 ${winner.gun} | ${winner.skin}`, 'success');
+        goldBurst(window.innerWidth/2, window.innerHeight/3, 30);
+        if(data.balance!==undefined) animateBalance(data.balance+(data.totalCost||0), data.balance);
+        isOpening=false;
+      },6200);
+    }).catch(()=>{showToast('Ошибка соединения','error');isOpening=false;});
+}
+
+async function claimBonus(){
+  const r=await fetch('/api/bonus',{method:'POST'}); const d=await r.json();
+  if(d.success){
+    showToast(`🎁 Получено +${d.bonus}₽!`,'success');
+    animateBalance(d.balance-d.bonus, d.balance);
+    const end=Date.now()+86400000; localStorage.setItem('bonusEnd',end);
+    startBonusTimer(end);
+    goldBurst(document.getElementById('bonus-timer')?.getBoundingClientRect().x||200, 400, 20);
+  } else { showToast(d.error,'error'); }
+}
+
+async function activatePromo(){
+  const code=document.getElementById('promo-inp').value;
+  if(!code) return;
+  const r=await fetch('/api/promo',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code})});
+  const d=await r.json();
+  if(d.success){
+    showToast(`✅ Промокод активирован! +${d.bonus}₽`,'success');
+    animateBalance(d.balance-d.bonus, d.balance);
+    document.getElementById('promo-inp').value='';
+  } else { showToast(d.error,'error'); }
+}
+
+// init bonus timer
+const bonusEnd=localStorage.getItem('bonusEnd');
+if(bonusEnd) startBonusTimer(parseInt(bonusEnd));
+</script>

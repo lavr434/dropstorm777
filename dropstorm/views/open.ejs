@@ -1,0 +1,207 @@
+<%- include('partials/header',{page:'home',pageTitle:(caseData?caseData.name:'Кейс')+' — DropStorm'}) %>
+<main class="page-content">
+<%
+const c=caseData;
+const RC={legendary:'var(--c-legend)',epic:'var(--c-epic)',rare:'var(--c-rare)',uncommon:'var(--c-uncommon)',common:'var(--c-common)'};
+const rRu={legendary:'Легендарное',epic:'Эпическое',rare:'Редкое',uncommon:'Необычное',common:'Обычное'};
+const rClass={legendary:'legend',epic:'epic',rare:'rare',uncommon:'uncommon',common:'common'};
+%>
+<div class="open-layout">
+  <!-- Sidebar -->
+  <aside>
+    <a href="/" class="open-back">← Назад к кейсам</a>
+    <div class="case-info-card">
+      <div class="case-info-t">О Кейсе</div>
+      <p style="font-size:11.5px;color:rgba(255,255,255,.4);line-height:1.6;margin-bottom:14px;"><%=c.description||'Испытай удачу!'%></p>
+      <div style="display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:8px;">
+        <span style="color:rgba(255,255,255,.4)">Предметов:</span>
+        <span style="font-weight:800;color:var(--gold)"><%=c.items.length%></span>
+      </div>
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:rgba(255,255,255,.3);margin:12px 0 8px;">Редкости в кейсе:</div>
+      <ul class="rarity-list">
+        <li class="rarity-item"><div class="rbar legend"></div><span class="rname legend">Легендарное</span><span class="rpct">1%</span></li>
+        <li class="rarity-item"><div class="rbar epic"></div><span class="rname epic">Эпическое</span><span class="rpct">4%</span></li>
+        <li class="rarity-item"><div class="rbar rare"></div><span class="rname rare">Редкое</span><span class="rpct">15%</span></li>
+        <li class="rarity-item"><div class="rbar uncommon"></div><span class="rname uncommon">Необычное</span><span class="rpct">30%</span></li>
+        <li class="rarity-item"><div class="rbar common"></div><span class="rname">Обычное</span><span class="rpct">50%</span></li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div>
+    <div class="open-case-header">
+      <h1 class="open-case-name"><%=c.name%></h1>
+      <div class="open-case-sub">Кейс CS2</div>
+      <button class="fav-btn">♡ В избранное</button>
+    </div>
+
+    <!-- Case preview -->
+    <div id="case-preview">
+      <div class="case-img-wrap">
+        <div class="case-glow"></div>
+        <img src="<%=c.image%>" class="case-big-img" alt="<%=c.name%>" onerror="this.style.fontSize='64px';this.style.height='auto';this.src='';this.outerHTML='<div style=\'font-size:80px;text-align:center;padding:30px\'>📦</div>'"/>
+      </div>
+      <div style="font-size:22px;font-weight:900;color:var(--gold);text-align:center;margin-bottom:14px;"><%=c.price.toLocaleString('ru-RU')%>₽</div>
+      <div class="qty-tabs">
+        <button class="qty-tab active" data-qty="1">x1</button>
+        <button class="qty-tab" data-qty="2">x2</button>
+        <button class="qty-tab" data-qty="3">x3</button>
+        <button class="qty-tab" data-qty="5">x5</button>
+        <button class="qty-tab" data-qty="10">x10</button>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:4px;">
+        <button class="btn btn-gold btn-lg" id="open-btn" onclick="startOpen()">
+          ⚡ Открыть за <span id="open-price"><%=c.price.toLocaleString('ru-RU')%>₽</span>
+        </button>
+        <label style="display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:rgba(255,255,255,.45);cursor:pointer;">
+          <input type="checkbox" id="quick-cb" style="accent-color:var(--gold)"/> ⚡ Быстро
+        </label>
+      </div>
+    </div>
+
+    <!-- Roulette -->
+    <div id="roulette-box" style="display:none;">
+      <div class="roulette-section">
+        <div class="roulette-header"><span class="roulette-t">🎰 Открываем...</span></div>
+        <div class="roulette-wrap" id="roulette-wrap">
+          <div class="roulette-pointer"></div>
+          <div class="roulette-track" id="roulette-track"></div>
+        </div>
+        <div class="roulette-status" id="roulette-status">
+          <div class="roulette-spinner"></div><span>Открываем...</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Won display -->
+    <div id="won-box" style="display:none;"></div>
+
+    <!-- Case contents -->
+    <div style="margin-top:28px;">
+      <div style="font-size:12px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.35);text-align:center;margin-bottom:14px;">Возможные предметы</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(125px,1fr));gap:9px;">
+        <% c.items.forEach(item=>{ %>
+        <div style="background:var(--card);border:1px solid <%=RC[item.rarity]||'rgba(255,255,255,.07)'%>33;border-radius:var(--r);padding:9px 7px;text-align:center;transition:border-color .2s;" onmouseenter="this.style.borderColor='<%=RC[item.rarity]||'rgba(245,197,66,.3)'%>'" onmouseleave="this.style.borderColor='<%=RC[item.rarity]||'rgba(255,255,255,.07)'%>33'">
+          <div style="height:60px;display:flex;align-items:center;justify-content:center;font-size:24px;"><%=item.emoji||'🔫'%></div>
+          <div style="font-size:9.5px;color:rgba(255,255,255,.35);font-weight:600;margin-bottom:1px;"><%=item.gun%></div>
+          <div style="font-size:10px;font-weight:800;color:<%=RC[item.rarity]||'#fff'%>;"><%=item.skin%></div>
+          <div style="font-size:9px;color:rgba(255,255,255,.3);margin-top:2px;"><%=item.pct||'?'%>%</div>
+        </div>
+        <% }) %>
+      </div>
+      <div style="text-align:center;margin-top:14px;">
+        <button class="btn btn-ghost btn-sm">ℹ️ Проверить шансы дропа</button>
+      </div>
+    </div>
+  </div>
+</div>
+</main>
+<%- include('partials/footer') %>
+
+<script>
+const CASE_DATA = <%- JSON.stringify(c) %>;
+const RC2={legendary:'var(--c-legend)',epic:'var(--c-epic)',rare:'var(--c-rare)',uncommon:'var(--c-uncommon)',common:'var(--c-common)'};
+const RARITY_RU={legendary:'Легендарное',epic:'Эпическое',rare:'Редкое',uncommon:'Необычное',common:'Обычное'};
+let openQty=1, isOpening=false;
+
+document.querySelectorAll('.qty-tab').forEach(b=>b.addEventListener('click',function(){
+  document.querySelectorAll('.qty-tab').forEach(x=>x.classList.remove('active'));
+  this.classList.add('active'); openQty=parseInt(this.dataset.qty);
+  const total=(CASE_DATA.price*openQty).toLocaleString('ru-RU');
+  document.getElementById('open-price').textContent=total+'₽';
+}));
+
+function buildRoulette(winner){
+  const track=document.getElementById('roulette-track');
+  track.style.transition='none'; track.style.transform='translateX(0)'; track.innerHTML='';
+  const pool=CASE_DATA.items.length>0?CASE_DATA.items:[winner];
+  for(let i=0;i<52;i++){
+    const item=i===38?winner:pool[Math.floor(Math.random()*pool.length)];
+    const el=document.createElement('div'); el.className='roulette-item';
+    el.style.borderColor=RC2[item.rarity]||'#333';
+    el.innerHTML=`<div class="ri-ph">${item.emoji||'🔫'}</div>
+      <div class="ri-gun">${item.gun}</div>
+      <div class="ri-name" style="color:${RC2[item.rarity]}">${item.skin}</div>`;
+    track.appendChild(el);
+  }
+}
+
+async function startOpen(){
+  if(isOpening) return;
+  isOpening=true;
+  document.getElementById('case-preview').style.display='none';
+  document.getElementById('won-box').style.display='none';
+  document.getElementById('roulette-box').style.display='block';
+  document.getElementById('roulette-status').innerHTML='<div class="roulette-spinner"></div><span>Открываем...</span>';
+  triggerFlash();
+
+  const r=await fetch(`/api/open/${CASE_DATA.id}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({qty:openQty})});
+  const data=await r.json();
+  if(!data.success){
+    showToast(data.error||'Ошибка','error');
+    document.getElementById('roulette-box').style.display='none';
+    document.getElementById('case-preview').style.display='block';
+    isOpening=false; return;
+  }
+
+  const winner=data.items[0];
+  buildRoulette(winner);
+  if(data.balance!==undefined) animateBalance(data.balance+data.totalCost, data.balance);
+
+  const quick=document.getElementById('quick-cb').checked;
+  if(quick){
+    setTimeout(()=>finishOpen(winner,data),400);
+  } else {
+    const wrap=document.getElementById('roulette-wrap');
+    const iw=113, offset=38*iw-(wrap.offsetWidth/2-54)+(Math.random()*50-25);
+    setTimeout(()=>{
+      const track=document.getElementById('roulette-track');
+      track.style.transition='transform 5.8s cubic-bezier(.1,.2,.05,1)';
+      track.style.transform=`translateX(-${offset}px)`;
+    },150);
+    setTimeout(()=>finishOpen(winner,data),6300);
+  }
+}
+
+function finishOpen(winner,data){
+  document.getElementById('roulette-box').style.display='none';
+  triggerFlash();
+  goldBurst(window.innerWidth/2, window.innerHeight/3, 35);
+  const col=RC2[winner.rarity]||'var(--gold)';
+  const box=document.getElementById('won-box');
+  box.style.display='block';
+  box.innerHTML=`
+    <div class="won-display ${winner.rarity==='legendary'?'legendary':winner.rarity==='epic'?'epic':''}">
+      <div style="font-size:10.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:12px;">🎉 Ваш выигрыш</div>
+      <div style="font-size:60px;margin-bottom:12px;">${winner.emoji||'🔫'}</div>
+      <div style="font-size:22px;font-weight:900;margin-bottom:4px;">${winner.gun}</div>
+      <div style="font-size:16px;font-weight:700;color:${col};margin-bottom:4px;">${winner.skin}</div>
+      <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:${col};margin-bottom:6px;">${RARITY_RU[winner.rarity]||''}</div>
+      <div style="font-size:16px;font-weight:700;color:rgba(255,255,255,.5);margin-bottom:20px;">
+        Стоимость: <span style="color:var(--gold)">${winner.price.toLocaleString('ru-RU')}₽</span>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <button class="btn btn-ghost" onclick="retryOpen()">🔄 Попробовать ещё</button>
+        <button class="btn btn-gold" onclick="sellWon(${winner.id},${winner.price},'${winner.gun} | ${winner.skin}')">
+          💰 Продать за ${Math.round(winner.price*0.85).toLocaleString('ru-RU')}₽
+        </button>
+        <button class="btn btn-outline" onclick="window.location='/inventory'">🎒 В инвентарь</button>
+      </div>
+    </div>`;
+  showToast(`🎉 ${winner.gun} | ${winner.skin}`,'success');
+  isOpening=false;
+}
+
+function retryOpen(){
+  document.getElementById('won-box').style.display='none';
+  document.getElementById('case-preview').style.display='block';
+}
+
+async function sellWon(id,price,name){
+  const r=await fetch(`/api/sell/${id}`,{method:'POST'});
+  const d=await r.json();
+  if(d.success){showToast(`💰 Продано: ${name} за ${d.earned.toLocaleString('ru-RU')}₽`,'success');animateBalance(d.balance-d.earned,d.balance);retryOpen();}
+  else showToast(d.error||'Ошибка','error');
+}
+</script>

@@ -1,0 +1,172 @@
+<%- include('partials/header',{page:'wheel',pageTitle:'Колесо Фортуны — DropStorm'}) %>
+<main class="page-content">
+<div style="text-align:center;margin-bottom:8px;">
+  <h1 style="font-size:26px;font-weight:900;text-transform:uppercase;letter-spacing:1px;">🎡 Колесо Фортуны</h1>
+  <p style="font-size:11px;font-weight:700;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-top:4px;">Крути колесо и получай лучшие скины!</p>
+</div>
+
+<div class="wheel-page">
+  <!-- pointer -->
+  <div class="wheel-pointer-icon">▼</div>
+
+  <!-- canvas wrap -->
+  <div class="wheel-canvas-wrap">
+    <div class="wheel-glow-ring"></div>
+    <canvas id="wheel-canvas" width="420" height="420"></canvas>
+    <button class="wheel-spin-btn" id="spin-btn" onclick="spinWheel()">КРУТИТЬ</button>
+  </div>
+
+  <div class="spin-tokens">
+    У вас есть: <span class="tok" id="spin-tok"><%=spinTokens||0%></span> <span>⚡</span>
+  </div>
+
+  <div style="display:flex;gap:10px;">
+    <button class="btn btn-outline btn-sm" onclick="spinWheel()">1 раз</button>
+    <button class="btn btn-ghost btn-sm" onclick="showToast('Мультиспин доступен от 5 жетонов','success')">5 раз</button>
+    <button class="btn btn-ghost btn-sm" onclick="showToast('Мультиспин доступен от 10 жетонов','success')">10 раз</button>
+  </div>
+
+  <!-- info -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;width:100%;max-width:600px;">
+    <div style="background:var(--card);border:1px solid rgba(245,197,66,.15);border-radius:var(--r2);padding:16px;text-align:center;">
+      <div style="font-size:10px;color:rgba(255,255,255,.35);font-weight:700;text-transform:uppercase;margin-bottom:6px;">Вращений</div>
+      <div style="font-size:28px;font-weight:900;color:var(--gold)" id="total-spins">0</div>
+    </div>
+    <div style="background:var(--card);border:1px solid rgba(245,197,66,.15);border-radius:var(--r2);padding:16px;text-align:center;">
+      <div style="font-size:10px;color:rgba(255,255,255,.35);font-weight:700;text-transform:uppercase;margin-bottom:6px;">Выиграно</div>
+      <div style="font-size:28px;font-weight:900;color:var(--green)" id="total-won">0₽</div>
+    </div>
+    <div style="background:var(--card);border:1px solid rgba(245,197,66,.15);border-radius:var(--r2);padding:16px;text-align:center;">
+      <div style="font-size:10px;color:rgba(255,255,255,.35);font-weight:700;text-transform:uppercase;margin-bottom:6px;">Рекорд</div>
+      <div style="font-size:28px;font-weight:900;color:var(--c-epic)" id="best-win">0₽</div>
+    </div>
+  </div>
+
+  <!-- how to get tokens -->
+  <div style="background:var(--card);border:1px solid rgba(245,197,66,.15);border-radius:var(--r2);padding:18px 22px;max-width:520px;width:100%;">
+    <div style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.4);margin-bottom:12px;">Как получить жетоны ⚡</div>
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom:10px;">
+      <img src="/img/ui/telegram.png" style="width:44px;height:44px;border-radius:50%;object-fit:cover;" onerror="this.outerHTML='<div style=\'width:44px;height:44px;border-radius:50%;background:rgba(245,197,66,.1);display:flex;align-items:center;justify-content:center;font-size:22px\'>📱</div>'" alt="tg"/>
+      <div>
+        <div style="font-size:12.5px;font-weight:800;margin-bottom:2px;">Telegram бонус — 35₽</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.35);">Подпишись на канал и получи жетон</div>
+      </div>
+      <a href="https://t.me/dropstorm" target="_blank" class="btn btn-gold btn-sm" style="margin-left:auto;">Получить</a>
+    </div>
+    <div style="font-size:11px;color:rgba(255,255,255,.3);">Также жетоны начисляются за открытие кейсов и промокоды.</div>
+  </div>
+</div>
+</main>
+<%- include('partials/footer') %>
+
+<div class="modal-overlay" id="win-modal">
+  <div class="modal" style="text-align:center;">
+    <div style="font-size:56px;margin-bottom:10px;" id="win-emoji">🎉</div>
+    <div style="font-size:13px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:6px;">Поздравляем!</div>
+    <div style="font-size:42px;font-weight:900;color:var(--gold);margin-bottom:6px;" id="win-amount">0₽</div>
+    <div style="font-size:12px;color:rgba(255,255,255,.35);margin-bottom:22px;">начислено на баланс</div>
+    <div style="display:flex;gap:10px;justify-content:center;">
+      <button class="btn btn-ghost" onclick="closeModal('win-modal')">Закрыть</button>
+      <button class="btn btn-gold" onclick="spinWheel();closeModal('win-modal')">🎡 Ещё раз</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const PRIZES=[
+  {label:'5₽',    value:5,   color:'#1a3a6e',border:'#4b9eff', weight:30},
+  {label:'10₽',   value:10,  color:'#1a1060',border:'#7b4bff', weight:25},
+  {label:'15₽',   value:15,  color:'#2a1060',border:'#a855f7', weight:20},
+  {label:'25₽',   value:25,  color:'#3a1a08',border:'#ff7b42', weight:12},
+  {label:'35₽',   value:35,  color:'#3a2a00',border:'#f5c542', weight:8},
+  {label:'50₽',   value:50,  color:'#0a2a14',border:'#22c55e', weight:3},
+  {label:'Кейс!', value:0,   color:'#2a0808',border:'#ef4444', weight:1.5},
+  {label:'100₽',  value:100, color:'#1a0a00',border:'#ffffff', weight:0.5},
+];
+const canvas=document.getElementById('wheel-canvas');
+const ctx=canvas.getContext('2d');
+const W=canvas.width,H=canvas.height,CX=W/2,CY=H/2,R=W/2-12;
+let angle=0, isSpinning=false, totalSpins=0, totalWon=0, bestWin=0;
+let spinTok=<%=spinTokens||0%>;
+
+function drawWheel(a){
+  ctx.clearRect(0,0,W,H);
+  const n=PRIZES.length, step=(2*Math.PI)/n;
+  // outer ring
+  ctx.beginPath(); ctx.arc(CX,CY,R+10,0,Math.PI*2);
+  ctx.strokeStyle='rgba(245,197,66,.25)'; ctx.lineWidth=3; ctx.stroke();
+
+  PRIZES.forEach((p,i)=>{
+    const s=a+i*step, e=s+step;
+    ctx.beginPath(); ctx.moveTo(CX,CY); ctx.arc(CX,CY,R,s,e); ctx.closePath();
+    ctx.fillStyle=p.color; ctx.fill();
+    ctx.shadowColor=p.border; ctx.shadowBlur=8;
+    ctx.strokeStyle=p.border+'90'; ctx.lineWidth=2; ctx.stroke(); ctx.shadowBlur=0;
+
+    ctx.save(); ctx.translate(CX,CY); ctx.rotate(s+step/2);
+    ctx.textAlign='right'; ctx.textBaseline='middle';
+    ctx.fillStyle='#fff'; ctx.font='bold 15px Montserrat,sans-serif';
+    ctx.shadowColor=p.border; ctx.shadowBlur=5;
+    ctx.fillText(p.label, R-16, 0); ctx.restore();
+  });
+
+  // center hub
+  ctx.beginPath(); ctx.arc(CX,CY,48,0,Math.PI*2);
+  const g=ctx.createRadialGradient(CX,CY,0,CX,CY,48);
+  g.addColorStop(0,'#1a1c28'); g.addColorStop(1,'#070a12');
+  ctx.fillStyle=g; ctx.shadowColor='rgba(245,197,66,.5)'; ctx.shadowBlur=16; ctx.fill(); ctx.shadowBlur=0;
+  ctx.strokeStyle='rgba(245,197,66,.35)'; ctx.lineWidth=2.5; ctx.stroke();
+  ctx.fillStyle='#f5c542'; ctx.font='bold 22px sans-serif';
+  ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('⚡',CX,CY);
+}
+
+function pickPrize(){
+  const tot=PRIZES.reduce((s,p)=>s+p.weight,0); let r=Math.random()*tot;
+  for(let i=0;i<PRIZES.length;i++){r-=PRIZES[i].weight;if(r<=0)return i;}
+  return 0;
+}
+
+async function spinWheel(){
+  if(isSpinning) return;
+  if(spinTok<1){showToast('Нет жетонов! Подпишись на Telegram','error');return;}
+
+  const r=await fetch('/api/spin',{method:'POST'});
+  const d=await r.json();
+  if(!d.success){showToast(d.error||'Ошибка','error');return;}
+
+  isSpinning=true; document.getElementById('spin-btn').textContent='...';
+  spinTok=d.spinTokens; document.getElementById('spin-tok').textContent=spinTok;
+
+  const wi=d.prizeIndex;
+  const n=PRIZES.length, step=(2*Math.PI)/n;
+  const pointer=-Math.PI/2;
+  const sectorMid=wi*step+step/2;
+  const extra=(6+Math.floor(Math.random()*4))*2*Math.PI;
+  const target=pointer-sectorMid-extra;
+  const start=angle, delta=target-start, dur=5500+Math.random()*2000, t0=performance.now();
+
+  function ease(t){return 1-Math.pow(1-t,4);}
+  function frame(now){
+    const t=Math.min((now-t0)/dur,1); angle=start+delta*ease(t); drawWheel(angle);
+    if(t<1){requestAnimationFrame(frame);}
+    else{
+      angle=target; isSpinning=false; document.getElementById('spin-btn').textContent='КРУТИТЬ';
+      const prize=PRIZES[wi];
+      totalSpins++; totalWon+=prize.value; if(prize.value>bestWin&&prize.value>0)bestWin=prize.value;
+      document.getElementById('total-spins').textContent=totalSpins;
+      document.getElementById('total-won').textContent=totalWon+'₽';
+      document.getElementById('best-win').textContent=bestWin+'₽';
+      triggerFlash();
+      if(prize.value>0) goldBurst(CX+canvas.getBoundingClientRect().left, CY+canvas.getBoundingClientRect().top, 30);
+      document.getElementById('win-emoji').textContent=prize.value>=50?'🏆':'🎉';
+      document.getElementById('win-amount').textContent=prize.label;
+      openModal('win-modal');
+      if(d.balance!==undefined) animateBalance(d.balance-prize.value, d.balance);
+      showToast(`🎡 Выиграно: ${prize.label}!`,'success');
+    }
+  }
+  requestAnimationFrame(frame);
+}
+
+drawWheel(angle);
+</script>

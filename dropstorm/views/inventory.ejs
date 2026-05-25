@@ -1,0 +1,108 @@
+<%- include('partials/header',{page:'inventory',pageTitle:'Инвентарь — DropStorm'}) %>
+<main class="page-content">
+<div class="inv-header">
+  <h1 class="inv-title">Ваш Инвентарь</h1>
+  <span class="inv-count" id="inv-count"><%=items.length%> предметов</span>
+  <div class="inv-controls">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input class="search-inp" id="search-inp" placeholder="Поиск по предметам..." oninput="filterItems()"/>
+    </div>
+    <select class="sel-styled" id="rarity-sel" onchange="filterItems()">
+      <option value="">Все предметы</option>
+      <option value="legendary">Легендарные</option>
+      <option value="epic">Эпические</option>
+      <option value="rare">Редкие</option>
+      <option value="uncommon">Необычные</option>
+      <option value="common">Обычные</option>
+    </select>
+    <select class="sel-styled" id="sort-sel" onchange="filterItems()">
+      <option value="pd">Цена ↓</option>
+      <option value="pa">Цена ↑</option>
+      <option value="name">По имени</option>
+    </select>
+  </div>
+</div>
+
+<div class="items-grid" id="items-grid">
+  <% items.forEach(item=>{ %>
+  <div class="item-card <%=item.rarity%>" data-rarity="<%=item.rarity%>" data-price="<%=item.price%>" data-name="<%=item.gun%> <%=item.skin%>">
+    <span class="item-price"><%=item.price.toLocaleString('ru-RU')%>₽</span>
+    <div class="item-img-wrap"><div class="item-img-ph"><%=item.emoji||'🔫'%></div></div>
+    <div class="item-gun"><%=item.gun%></div>
+    <div class="item-name" style="color:<%={legendary:'var(--c-legend)',epic:'var(--c-epic)',rare:'var(--c-rare)',uncommon:'var(--c-uncommon)',common:'var(--c-common)'}[item.rarity]||'#fff'%>;"><%=item.skin%></div>
+    <div class="item-actions">
+      <button class="btn btn-gold btn-sm" onclick="window.location='/upgrade?item=<%=item.id%>'">⚡ Апгрейд</button>
+      <button class="sell-btn" title="Продать" onclick="openSellModal(<%=item.id%>,'<%=item.gun%> | <%=item.skin%>',<%=item.price%>)">🛒</button>
+    </div>
+  </div>
+  <% }) %>
+</div>
+
+<div class="pagination">
+  <button class="page-btn">‹</button>
+  <button class="page-btn active">1</button>
+  <button class="page-btn">2</button>
+  <button class="page-btn">›</button>
+</div>
+</main>
+<%- include('partials/footer') %>
+
+<div class="modal-overlay" id="sell-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Продать предмет</span>
+      <button class="modal-close" onclick="closeModal('sell-modal')">✕</button>
+    </div>
+    <p style="font-size:13px;color:rgba(255,255,255,.4);margin-bottom:14px;">Вы продаёте: <strong style="color:var(--gold)" id="sell-name"></strong></p>
+    <div style="font-size:32px;font-weight:900;color:var(--gold);text-align:center;margin-bottom:22px;" id="sell-price-display"></div>
+    <p style="font-size:11px;color:rgba(255,255,255,.3);text-align:center;margin-bottom:20px;">Комиссия 15%</p>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-ghost btn-full" onclick="closeModal('sell-modal')">Отмена</button>
+      <button class="btn btn-gold btn-full" id="sell-confirm-btn">💰 Продать</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const ALL_ITEMS = <%- JSON.stringify(items) %>;
+function filterItems(){
+  const q=document.getElementById('search-inp').value.toLowerCase();
+  const rar=document.getElementById('rarity-sel').value;
+  const srt=document.getElementById('sort-sel').value;
+  let list=ALL_ITEMS.filter(i=>{
+    return (!q||(i.gun+' '+i.skin).toLowerCase().includes(q))&&(!rar||i.rarity===rar);
+  });
+  if(srt==='pd') list.sort((a,b)=>b.price-a.price);
+  else if(srt==='pa') list.sort((a,b)=>a.price-b.price);
+  else list.sort((a,b)=>(a.gun+a.skin).localeCompare(b.gun+b.skin));
+  const RC={legendary:'var(--c-legend)',epic:'var(--c-epic)',rare:'var(--c-rare)',uncommon:'var(--c-uncommon)',common:'var(--c-common)'};
+  document.getElementById('items-grid').innerHTML=list.map(item=>`
+    <div class="item-card ${item.rarity}">
+      <span class="item-price">${item.price.toLocaleString('ru-RU')}₽</span>
+      <div class="item-img-wrap"><div class="item-img-ph">${item.emoji||'🔫'}</div></div>
+      <div class="item-gun">${item.gun}</div>
+      <div class="item-name" style="color:${RC[item.rarity]||'#fff'}">${item.skin}</div>
+      <div class="item-actions">
+        <button class="btn btn-gold btn-sm" onclick="window.location='/upgrade?item=${item.id}'">⚡ Апгрейд</button>
+        <button class="sell-btn" onclick="openSellModal(${item.id},'${item.gun} | ${item.skin}',${item.price})">🛒</button>
+      </div>
+    </div>`).join('');
+  document.getElementById('inv-count').textContent=list.length+' предметов';
+}
+
+let currentSellId=null;
+function openSellModal(id,name,price){
+  currentSellId=id;
+  document.getElementById('sell-name').textContent=name;
+  const net=Math.round(price*0.85);
+  document.getElementById('sell-price-display').textContent=net.toLocaleString('ru-RU')+'₽';
+  document.getElementById('sell-confirm-btn').onclick=async()=>{
+    const r=await fetch(`/api/sell/${id}`,{method:'POST'});
+    const d=await r.json();
+    if(d.success){showToast(`💰 Продано за ${d.earned.toLocaleString('ru-RU')}₽`,'success');animateBalance(d.balance-d.earned,d.balance);closeModal('sell-modal');location.reload();}
+    else showToast(d.error||'Ошибка','error');
+  };
+  openModal('sell-modal');
+}
+</script>

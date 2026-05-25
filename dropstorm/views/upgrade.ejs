@@ -1,0 +1,225 @@
+<%- include('partials/header',{page:'upgrade',pageTitle:'Апгрейд — DropStorm'}) %>
+<main class="page-content">
+
+<div style="text-align:center;margin-bottom:24px;">
+  <h1 style="font-size:26px;font-weight:900;text-transform:uppercase;letter-spacing:1px;">⚡ Апгрейд ⚡</h1>
+  <p style="font-size:11px;font-weight:700;color:rgba(255,255,255,.35);letter-spacing:2px;text-transform:uppercase;margin-top:4px;">Улучшай скины и получай лучшие предметы</p>
+</div>
+
+<div class="upgrade-layout" id="upgrade-layout">
+
+  <!-- YOUR ITEM -->
+  <div class="upgrade-panel" id="your-panel">
+    <div class="up-panel-t">Ваш Предмет</div>
+    <button class="up-close" id="clear-src" style="display:none" onclick="clearSource()">✕</button>
+    <div id="src-display" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:220px;gap:10px;color:rgba(255,255,255,.25);">
+      <span style="font-size:38px;">🎒</span>
+      <span style="font-size:12px;font-weight:600;">Выберите предмет ниже</span>
+    </div>
+  </div>
+
+  <!-- CENTER: ring -->
+  <div class="upgrade-center">
+    <div class="up-ring-wrap" id="ring-wrap">
+      <svg viewBox="0 0 190 190" width="190" height="190">
+        <defs>
+          <linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:var(--orange)"/>
+            <stop offset="100%" style="stop-color:var(--gold)"/>
+          </linearGradient>
+        </defs>
+        <circle class="up-ring-track" cx="95" cy="95" r="80"/>
+        <circle class="up-ring-fill" id="ring-fill" cx="95" cy="95" r="80"
+          stroke-dasharray="502.65" stroke-dashoffset="502.65"/>
+      </svg>
+      <!-- bolt spinner -->
+      <div class="up-bolt-spinner" id="bolt-spinner">
+        <div class="up-bolt-dot" id="bolt-dot" style="transform:rotate(0deg) translateX(80px)">⚡</div>
+      </div>
+      <div class="up-ring-inner">
+        <div class="up-pct" id="up-pct">—</div>
+        <div class="up-label">ШАНС УСПЕХА</div>
+        <div class="up-risk" id="up-risk">Выберите предметы</div>
+      </div>
+    </div>
+
+    <div>
+      <div style="font-size:10.5px;color:rgba(255,255,255,.3);text-align:center;margin-bottom:7px;">Множитель стоимости</div>
+      <div class="mult-tabs" id="mult-tabs">
+        <button class="mult-tab" data-m="1.5">1.5x</button>
+        <button class="mult-tab active" data-m="2">2x</button>
+        <button class="mult-tab" data-m="5">5x</button>
+        <button class="mult-tab" data-m="10">10x</button>
+      </div>
+    </div>
+
+    <button class="btn btn-gold btn-lg" id="upgrade-btn" onclick="doUpgrade()" style="min-width:210px;">
+      ⚡ Улучшить предмет
+    </button>
+    <p class="up-hint" id="up-hint">Выберите предметы для апгрейда</p>
+    <button class="btn btn-ghost btn-sm" onclick="window.location='/inventory'">🎒 Мой инвентарь</button>
+  </div>
+
+  <!-- TARGET ITEM -->
+  <div class="upgrade-panel" id="target-panel">
+    <div class="up-panel-t">Целевой Предмет</div>
+    <button class="up-close" id="clear-tgt" style="display:none" onclick="clearTarget()">✕</button>
+    <div id="tgt-display" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:220px;gap:10px;color:rgba(255,255,255,.25);">
+      <span style="font-size:38px;">🎯</span>
+      <span style="font-size:12px;font-weight:600;">Выберите цель или автовыбор</span>
+    </div>
+    <button class="btn btn-outline btn-sm btn-full" style="margin-top:14px;" onclick="showToast('Выберите предмет из раздела ниже','success')">⚙️ Выбрать предмет</button>
+  </div>
+</div>
+
+<!-- MY INVENTORY mini -->
+<div style="margin-top:32px;">
+  <div class="section-title">Мой инвентарь</div>
+  <div class="mini-grid" id="my-inv">
+    <% items.forEach(item=>{ %>
+    <div class="mini-item" onclick="selectSource(<%- JSON.stringify(item) %>)" id="mi-<%=item.id%>">
+      <div style="font-size:8.5px;color:var(--gold);font-weight:800;text-align:right;"><%=item.price.toLocaleString('ru-RU')%>₽</div>
+      <div class="mi-ph"><%=item.emoji||'🔫'%></div>
+      <div class="mi-name"><%=item.skin%></div>
+    </div>
+    <% }) %>
+  </div>
+</div>
+
+<!-- POSSIBLE WIN mini -->
+<div style="margin-top:24px;">
+  <div class="section-title">Возможный выигрыш</div>
+  <div class="mini-grid" id="win-grid">
+    <% items.forEach(item=>{ %>
+    <div class="mini-item" onclick="selectTarget(<%- JSON.stringify(item) %>)">
+      <div style="font-size:8.5px;color:var(--gold);font-weight:800;text-align:right;"><%=item.price.toLocaleString('ru-RU')%>₽</div>
+      <div class="mi-ph"><%=item.emoji||'🔫'%></div>
+      <div class="mi-name"><%=item.skin%></div>
+    </div>
+    <% }) %>
+  </div>
+</div>
+
+<div style="margin-top:20px;padding:13px 18px;border-radius:var(--r);background:rgba(255,123,66,.07);border:1px solid rgba(255,123,66,.2);font-size:11.5px;color:rgba(255,255,255,.4);display:flex;justify-content:space-between;align-items:center;">
+  <span>⚠️ Апгрейд — это риск! В случае неудачи вы потеряете свой предмет.</span>
+  <button class="btn btn-ghost btn-sm">ℹ️ Как работает?</button>
+</div>
+
+</main>
+<%- include('partials/footer') %>
+
+<!-- Upgrade result overlay -->
+<div id="upgrade-result-overlay" class="upgrade-result-overlay" onclick="this.classList.remove('show')">
+  <div class="upgrade-result-box" onclick="event.stopPropagation()">
+    <img id="upgrade-result-img" class="upgrade-result-img" src="" alt="result"/>
+    <div id="upgrade-result-text" style="font-size:18px;font-weight:900;margin-bottom:8px;"></div>
+    <div id="upgrade-result-item" style="font-size:14px;color:rgba(255,255,255,.5);margin-bottom:20px;"></div>
+    <div style="display:flex;gap:10px;justify-content:center;">
+      <button class="btn btn-ghost" onclick="document.getElementById('upgrade-result-overlay').classList.remove('show')">Закрыть</button>
+      <button class="btn btn-gold" onclick="location.reload()">⚡ Ещё раз</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const ALL_ITEMS = <%- JSON.stringify(items) %>;
+const RC={legendary:'var(--c-legend)',epic:'var(--c-epic)',rare:'var(--c-rare)',uncommon:'var(--c-uncommon)',common:'var(--c-common)'};
+let srcItem=null, tgtItem=null, mult=2, isUpgrading=false;
+
+// Multiplier tabs
+document.querySelectorAll('.mult-tab').forEach(b=>b.addEventListener('click',function(){
+  document.querySelectorAll('.mult-tab').forEach(x=>x.classList.remove('active'));
+  this.classList.add('active'); mult=parseFloat(this.dataset.m); recalc();
+}));
+
+// Preselect item from URL
+const urlItem=new URLSearchParams(location.search).get('item');
+if(urlItem){ const it=ALL_ITEMS.find(i=>i.id==urlItem); if(it) selectSource(it); }
+
+function selectSource(item){
+  srcItem=item;
+  document.getElementById('clear-src').style.display='flex';
+  document.getElementById('src-display').innerHTML=`
+    <div class="up-item-img">${item.emoji||'🔫'}</div>
+    <div class="up-item-name">${item.gun}</div>
+    <div class="up-item-skin">${item.skin}</div>
+    <div class="up-item-price">${item.price.toLocaleString('ru-RU')}₽</div>`;
+  document.querySelectorAll('#my-inv .mini-item').forEach(el=>el.classList.remove('sel'));
+  document.getElementById('mi-'+item.id)?.classList.add('sel');
+  recalc();
+}
+function clearSource(){ srcItem=null; document.getElementById('clear-src').style.display='none';
+  document.getElementById('src-display').innerHTML='<span style="font-size:38px;">🎒</span><span style="font-size:12px;font-weight:600;color:rgba(255,255,255,.25)">Выберите предмет ниже</span>';
+  document.querySelectorAll('#my-inv .mini-item').forEach(el=>el.classList.remove('sel')); recalc(); }
+
+function selectTarget(item){ tgtItem=item;
+  document.getElementById('clear-tgt').style.display='flex';
+  document.getElementById('tgt-display').innerHTML=`
+    <div class="up-item-img">${item.emoji||'🔫'}</div>
+    <div class="up-item-name">${item.gun}</div>
+    <div class="up-item-skin">${item.skin}</div>
+    <div class="up-item-price" style="color:var(--c-epic)">${item.price.toLocaleString('ru-RU')}₽</div>`; recalc(); }
+function clearTarget(){ tgtItem=null; document.getElementById('clear-tgt').style.display='none';
+  document.getElementById('tgt-display').innerHTML='<span style="font-size:38px;">🎯</span><span style="font-size:12px;font-weight:600;color:rgba(255,255,255,.25)">Выберите цель или автовыбор</span>'; recalc(); }
+
+function recalc(){
+  const circ=2*Math.PI*80; const fill=document.getElementById('ring-fill');
+  const pct=document.getElementById('up-pct'); const risk=document.getElementById('up-risk');
+  const hint=document.getElementById('up-hint'); const bolt=document.getElementById('bolt-dot');
+  if(!srcItem){pct.textContent='—';risk.textContent='Выберите предметы';risk.className='up-risk';fill.style.strokeDashoffset=circ;bolt.style.transform='rotate(0deg) translateX(80px)';return;}
+  const tgtPrice=tgtItem?tgtItem.price:srcItem.price*mult;
+  const chance=Math.min(92,Math.max(3,(srcItem.price/tgtPrice)*100));
+  pct.textContent=chance.toFixed(2)+'%';
+  fill.style.strokeDashoffset=circ-(chance/100)*circ;
+  // bolt position
+  const angle=(chance/100)*360-90;
+  bolt.style.transform=`rotate(${angle}deg) translateX(80px)`;
+  risk.className='up-risk'; risk.textContent='';
+  if(chance>=60){risk.textContent='ВЫСОКИЙ ШАНС';risk.classList.add('high');}
+  else if(chance>=30){risk.textContent='СРЕДНИЙ ШАНС';risk.classList.add('med');}
+  else{risk.textContent='НИЗКИЙ ШАНС';risk.classList.add('low');}
+  const minV=Math.round(tgtPrice*.88).toLocaleString('ru-RU');
+  const maxV=Math.round(tgtPrice*1.15).toLocaleString('ru-RU');
+  hint.textContent=`Получите предмет от ${minV}₽ до ${maxV}₽`;
+}
+
+async function doUpgrade(){
+  if(!srcItem){showToast('Выберите предмет для апгрейда!','error');return;}
+  if(isUpgrading) return;
+  isUpgrading=true;
+
+  // Animated bolt spin
+  const bolt=document.getElementById('bolt-dot'); let deg=0;
+  const spinInt=setInterval(()=>{deg+=12;bolt.style.transform=`rotate(${deg}deg) translateX(80px)`;},30);
+
+  const body={sourceId:srcItem.id,multiplier:mult};
+  if(tgtItem) body.targetId=tgtItem.id;
+  const r=await fetch('/api/upgrade',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const d=await r.json();
+
+  clearInterval(spinInt);
+  if(!d.success){showToast(d.error||'Ошибка','error');isUpgrading=false;return;}
+
+  setTimeout(()=>{
+    const overlay=document.getElementById('upgrade-result-overlay');
+    const img=document.getElementById('upgrade-result-img');
+    const txt=document.getElementById('upgrade-result-text');
+    const sub=document.getElementById('upgrade-result-item');
+    if(d.won){
+      img.src='/img/upgrade/upgrade_success.jpg';
+      txt.innerHTML='<span style="color:var(--gold)">🏆 Апгрейд успешен!</span>';
+      sub.textContent=d.item?`${d.item.gun} | ${d.item.skin} — ${d.item.price.toLocaleString('ru-RU')}₽`:'Предмет улучшен!';
+      triggerFlash(); goldBurst(window.innerWidth/2,window.innerHeight/2,50);
+      showToast('🏆 Апгрейд успешен!','success');
+    } else {
+      img.src='/img/upgrade/upgrade_fail.jpg';
+      txt.innerHTML='<span style="color:var(--red)">💔 Апгрейд провален</span>';
+      sub.textContent=`${srcItem.gun} | ${srcItem.skin} — потерян`;
+      showToast('❌ Не повезло — предмет потерян','error');
+    }
+    overlay.classList.add('show');
+    if(d.balance!==undefined) animateBalance(d.won?d.balance-100:d.balance+srcItem.price, d.balance);
+    isUpgrading=false; clearSource(); clearTarget();
+  },800);
+}
+</script>

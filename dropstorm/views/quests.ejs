@@ -1,0 +1,86 @@
+<%- include('partials/header',{page:'quests',pageTitle:'Задания — DropStorm'}) %>
+<main class="page-content">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:10px;">
+  <div><h1 style="font-size:24px;font-weight:900;text-transform:uppercase;">⚔️ Задания</h1>
+  <p style="font-size:11px;color:rgba(255,255,255,.35);margin-top:3px;">Выполняйте задания и получайте ценные награды</p></div>
+  <div style="display:flex;gap:10px;">
+    <div style="background:rgba(245,197,66,.08);border:1px solid rgba(245,197,66,.2);border-radius:var(--r);padding:10px 14px;text-align:center;">
+      <div style="font-size:10px;color:rgba(255,255,255,.35)">Выполнено</div>
+      <div style="font-size:20px;font-weight:900;color:var(--gold)">1 / 3</div>
+    </div>
+    <div style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:var(--r);padding:10px 14px;text-align:center;">
+      <div style="font-size:10px;color:rgba(255,255,255,.35)">Получено</div>
+      <div style="font-size:20px;font-weight:900;color:var(--green)">500₽</div>
+    </div>
+  </div>
+</div>
+<div class="section-title">Ежедневные задания</div>
+<div class="quests-grid" style="margin-bottom:28px;">
+<% [
+  {id:1,icon:'📦',name:'Открыватель',desc:'Откройте 3 кейса сегодня',prog:3,tot:3,reward:500,done:true},
+  {id:2,icon:'⚡',name:'Апгрейдер',desc:'Выполните 2 апгрейда',prog:1,tot:2,reward:1000,done:false},
+  {id:3,icon:'🎡',name:'Везунчик',desc:'Сделайте 5 вращений колеса',prog:0,tot:5,reward:300,done:false},
+].forEach(q=>{ %>
+<div class="quest-card" style="<%=q.done?'border-color:rgba(34,197,94,.3)':'border-color:rgba(255,255,255,.07)'%>">
+  <% if(q.done){ %><div style="position:absolute;top:12px;right:12px;width:22px;height:22px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;">✓</div><% } %>
+  <div style="font-size:28px;margin-bottom:8px"><%=q.icon%></div>
+  <div style="font-size:14px;font-weight:800;margin-bottom:5px"><%=q.name%></div>
+  <div style="font-size:11.5px;color:rgba(255,255,255,.4);margin-bottom:12px;line-height:1.5"><%=q.desc%></div>
+  <div style="font-size:10.5px;color:rgba(255,255,255,.35);margin-bottom:5px;display:flex;justify-content:space-between"><span>Прогресс</span><span style="color:var(--gold);font-weight:800"><%=q.prog%>/<%=q.tot%></span></div>
+  <div class="progress-bg" style="margin-bottom:10px"><div class="progress-fill" style="width:<%=Math.round(q.prog/q.tot*100)%>%"></div></div>
+  <div style="display:flex;align-items:center;justify-content:space-between;">
+    <span style="font-size:13px;font-weight:800;color:var(--gold)">🪙 <%=q.reward.toLocaleString('ru-RU')%>₽</span>
+    <button class="btn btn-gold btn-sm" <%=!q.done?'disabled style="opacity:.5"':''%> onclick="claimQ(<%=q.id%>,<%=q.reward%>)"><%=q.done?'✓ Получить':'Выполнить'%></button>
+  </div>
+</div>
+<% }) %>
+</div>
+<div class="section-title">Недельные задания</div>
+<div class="quests-grid" style="margin-bottom:28px;">
+<% [
+  {icon:'🏆',name:'Большой Дроп',desc:'Откройте 20 кейсов за неделю',prog:7,tot:20,reward:5000},
+  {icon:'💎',name:'Коллекционер',desc:'Соберите 5 эпических предметов',prog:2,tot:5,reward:10000},
+  {icon:'🔥',name:'Стримовый раш',desc:'Играйте 3 дня подряд',prog:2,tot:3,reward:2500},
+].forEach(q=>{ %>
+<div class="quest-card">
+  <div style="font-size:28px;margin-bottom:8px"><%=q.icon%></div>
+  <div style="font-size:14px;font-weight:800;margin-bottom:5px"><%=q.name%></div>
+  <div style="font-size:11.5px;color:rgba(255,255,255,.4);margin-bottom:12px;line-height:1.5"><%=q.desc%></div>
+  <div style="font-size:10.5px;color:rgba(255,255,255,.35);margin-bottom:5px;display:flex;justify-content:space-between"><span>Прогресс</span><span style="color:var(--gold);font-weight:800"><%=q.prog%>/<%=q.tot%></span></div>
+  <div class="progress-bg" style="margin-bottom:10px"><div class="progress-fill" style="width:<%=Math.round(q.prog/q.tot*100)%>%"></div></div>
+  <div style="display:flex;align-items:center;justify-content:space-between;">
+    <span style="font-size:13px;font-weight:800;color:var(--gold)">🪙 <%=q.reward.toLocaleString('ru-RU')%>₽</span>
+    <button class="btn btn-outline btn-sm" disabled style="opacity:.5">Выполнить</button>
+  </div>
+</div>
+<% }) %>
+</div>
+<div class="section-title">Достижения</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;">
+<% [
+  {icon:'🌟',name:'Первый дроп',desc:'Откройте первый кейс',done:true,reward:'100₽'},
+  {icon:'💰',name:'Богач',desc:'Накопите 10 000₽ на балансе',done:false,reward:'500₽'},
+  {icon:'🗡️',name:'Нож в руках',desc:'Выиграйте нож из кейса',done:false,reward:'2 000₽'},
+  {icon:'👑',name:'Легенда',desc:'Выиграйте легендарный предмет',done:false,reward:'5 000₽'},
+  {icon:'🔄',name:'100 открытий',desc:'Откройте 100 кейсов',done:false,reward:'1 500₽'},
+  {icon:'⚡',name:'Грозовой мастер',desc:'Выполните 50 апгрейдов',done:false,reward:'1 000₽'},
+].forEach(a=>{ %>
+<div style="background:<%=a.done?'rgba(245,197,66,.06)':'var(--card)'%>;border:1px solid <%=a.done?'rgba(245,197,66,.3)':'rgba(255,255,255,.06)'%>;border-radius:var(--r);padding:14px;display:flex;gap:10px;align-items:center;">
+  <div style="font-size:26px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.04);border-radius:9px;flex-shrink:0;filter:<%=a.done?'none':'grayscale(.7)'%>"><%=a.icon%></div>
+  <div style="flex:1">
+    <div style="font-size:12.5px;font-weight:800;color:<%=a.done?'var(--gold)':'#fff'%>;margin-bottom:2px"><%=a.name%></div>
+    <div style="font-size:10.5px;color:rgba(255,255,255,.35);margin-bottom:3px"><%=a.desc%></div>
+    <div style="font-size:11px;font-weight:800;color:var(--green)"><%=a.reward%></div>
+  </div>
+  <% if(a.done){ %><div style="width:22px;height:22px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0">✓</div><% } %>
+</div>
+<% }) %>
+</div>
+</main>
+<%- include('partials/footer') %>
+<script>
+async function claimQ(id,reward){
+  showToast(`🎉 Получена награда ${reward.toLocaleString('ru-RU')}₽!`,'success');
+  const btn=event.currentTarget; btn.textContent='✓ Получено'; btn.disabled=true; btn.style.opacity='.6';
+}
+</script>

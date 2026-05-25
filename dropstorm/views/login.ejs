@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Войти — DropStorm</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+  <style>
+    @keyframes floatP{0%{transform:translateY(100vh) scale(0);opacity:0}10%{opacity:.6}90%{opacity:.3}100%{transform:translateY(-20px) scale(1.4);opacity:0}}
+    .part{position:fixed;border-radius:50%;background:radial-gradient(circle,rgba(245,197,66,.7),transparent);pointer-events:none;animation:floatP linear infinite}
+    .auth-lightning{position:fixed;top:0;bottom:0;pointer-events:none;z-index:0;opacity:.5}
+  </style>
+</head>
+<body style="background:var(--bg)">
+<div class="noise-overlay"></div>
+<svg class="auth-lightning" style="left:0;width:180px" viewBox="0 0 180 900" preserveAspectRatio="xMidYMid slice">
+  <path d="M110 0 L70 200 L130 200 L50 500 L120 500 L15 900" stroke="#a855f7" stroke-width="2" fill="none" opacity=".7"/>
+  <path d="M150 80 L95 300 L145 300 L38 680 L108 680" stroke="#3b82f6" stroke-width="1.5" fill="none" opacity=".4"/>
+</svg>
+<svg class="auth-lightning" style="right:0;width:180px" viewBox="0 0 180 900" preserveAspectRatio="xMidYMid slice">
+  <path d="M70 0 L110 200 L50 200 L130 500 L60 500 L165 900" stroke="#a855f7" stroke-width="2" fill="none" opacity=".7"/>
+  <path d="M30 80 L85 300 L35 300 L142 680 L72 680" stroke="#3b82f6" stroke-width="1.5" fill="none" opacity=".4"/>
+</svg>
+<div id="particles" style="position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden"></div>
+
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-logo-wrap">
+      <a href="/" style="text-decoration:none">
+        <span style="font-size:28px;font-weight:900;letter-spacing:-.5px">DROP<span style="animation:bpulse 2s ease-in-out infinite;display:inline-block">⚡</span><span style="color:var(--gold)">STORM</span></span>
+      </a>
+    </div>
+    <h2 class="auth-t">С возвращением!</h2>
+    <p class="auth-sub">Войдите, чтобы открывать кейсы и получать дропы</p>
+
+    <a href="/auth/steam" style="display:flex;align-items:center;justify-content:center;gap:10px;background:linear-gradient(135deg,#1b2838,#2a475e);border:1px solid rgba(100,150,200,.3);border-radius:var(--r);padding:13px;color:#c6d4df;font-family:inherit;font-size:13.5px;font-weight:700;text-decoration:none;margin-bottom:14px;transition:all .2s;box-shadow:0 4px 20px rgba(0,0,0,.4);">
+      <svg width="22" height="22" viewBox="0 0 233 233" fill="#c6d4df"><path d="M116.5 0C52.2 0 0 52.2 0 116.5c0 50.7 32.4 94 78.1 110L116.5 116l38.4 110.5C200.6 210.5 233 167.2 233 116.5 233 52.2 180.8 0 116.5 0z"/></svg>
+      Войти через Steam
+    </a>
+    <div class="auth-divider">или</div>
+
+    <form action="/login" method="POST">
+      <% if(typeof error!=='undefined'&&error){ %><div class="auth-error">❌ <%=error%></div><% } %>
+      <div class="form-group">
+        <label class="form-label">Логин</label>
+        <input type="text" name="username" class="form-input" placeholder="Ваш логин" required/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Пароль</label>
+        <input type="password" name="password" class="form-input" placeholder="Ваш пароль" required/>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;font-size:11.5px;">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;color:rgba(255,255,255,.4)">
+          <input type="checkbox" style="accent-color:var(--gold)"/> Запомнить
+        </label>
+        <a href="#" style="color:var(--gold);font-weight:700;text-decoration:none">Забыл пароль?</a>
+      </div>
+      <button type="submit" class="btn btn-gold btn-full btn-lg">⚡ Войти</button>
+    </form>
+    <div class="auth-switch">Нет аккаунта? <a href="/register">Зарегистрироваться</a></div>
+    <div style="text-align:center;margin-top:12px">
+      <a href="/demo" style="font-size:11px;color:rgba(255,255,255,.25);text-decoration:none;border-bottom:1px dashed rgba(255,255,255,.15)">🎮 Войти как гость (демо)</a>
+    </div>
+  </div>
+</div>
+<script>
+const c=document.getElementById('particles');
+for(let i=0;i<18;i++){const p=document.createElement('div');p.className='part';const s=2+Math.random()*5;p.style.cssText=`width:${s}px;height:${s}px;left:${Math.random()*100}%;animation-duration:${6+Math.random()*8}s;animation-delay:${-Math.random()*10}s;`;c.appendChild(p);}
+</script>
+</body></html>

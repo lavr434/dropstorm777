@@ -1,0 +1,54 @@
+<%- include('partials/header',{page:'history',pageTitle:'История — DropStorm'}) %>
+<main class="page-content">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:10px;">
+  <h1 style="font-size:24px;font-weight:900;text-transform:uppercase;">📜 История</h1>
+  <select class="sel-styled" id="hist-filter" onchange="filterHist()">
+    <option value="">Все действия</option>
+    <option value="open">Открытия</option>
+    <option value="upgrade">Апгрейды</option>
+    <option value="bonus">Бонусы</option>
+    <option value="sell">Продажи</option>
+    <option value="wheel">Колесо</option>
+  </select>
+</div>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;">
+  <% const opens=history.filter(e=>e.type==='open').length, upgrades=history.filter(e=>e.type==='upgrade').length, sells=history.filter(e=>e.type==='sell').length; %>
+  <% [['📊',history.length,'Действий'],['📦',opens,'Открытий'],['⚡',upgrades,'Апгрейдов'],['🛒',sells,'Продаж']].forEach(([ic,n,lb])=>{ %>
+  <div style="background:var(--card);border:1px solid rgba(255,255,255,.06);border-radius:var(--r);padding:14px;text-align:center;">
+    <div style="font-size:18px;margin-bottom:3px"><%=ic%></div>
+    <div style="font-size:22px;font-weight:900;color:var(--gold)"><%=n%></div>
+    <div style="font-size:10px;color:rgba(255,255,255,.35)"><%=lb%></div>
+  </div>
+  <% }) %>
+</div>
+<div class="history-list" id="hist-list">
+  <% if(!history.length){ %>
+  <div style="text-align:center;padding:40px;color:rgba(255,255,255,.25);">
+    <div style="font-size:40px;margin-bottom:10px">📭</div>
+    <div>История пуста. Откройте первый кейс!</div>
+  </div>
+  <% } %>
+  <% history.forEach(e=>{ %>
+  <div class="history-item" data-type="<%=e.type%>">
+    <div class="h-icon <%=e.type%>"><%=e.icon||'📦'%></div>
+    <div class="h-info">
+      <div class="h-desc"><%=e.desc%></div>
+      <div style="font-size:10.5px;color:rgba(255,255,255,.35);margin-top:2px;"><%=e.item||''%></div>
+    </div>
+    <div style="text-align:right;">
+      <div class="h-val <%=e.valClass||'neutral'%>"><%=e.val||''%></div>
+      <div style="font-size:10px;color:rgba(255,255,255,.25);margin-top:2px;"><%=e.time||''%></div>
+    </div>
+  </div>
+  <% }) %>
+</div>
+</main>
+<%- include('partials/footer') %>
+<script>
+function filterHist(){
+  const f=document.getElementById('hist-filter').value;
+  document.querySelectorAll('.history-item').forEach(el=>{
+    el.style.display=(!f||el.dataset.type===f)?'flex':'none';
+  });
+}
+</script>

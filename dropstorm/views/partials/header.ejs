@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title><%- typeof pageTitle!=='undefined'?pageTitle:'DropStorm' %></title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+<div class="noise-overlay"></div>
+<div class="page-wrapper">
+
+<!-- ══ HEADER ══ -->
+<header class="site-header">
+  <div class="header-inner">
+    <a href="/" class="logo">
+      <span class="logo-text">DROP<span class="logo-bolt">⚡</span><span class="logo-storm">STORM</span></span>
+    </a>
+    <nav class="main-nav">
+      <ul>
+        <li><a href="/"          class="<%=page==='home'?'active':''%>">🎁 Кейсы</a></li>
+        <li><a href="/inventory" class="<%=page==='inventory'?'active':''%>">🎒 Инвентарь</a></li>
+        <li><a href="/contracts" class="<%=page==='contracts'?'active':''%>">📋 Контракты</a></li>
+        <li><a href="/upgrade"   class="<%=page==='upgrade'?'active':''%>">⚡ Апгрейд</a></li>
+        <li><a href="/wheel"     class="<%=page==='wheel'?'active':''%>">🎡 Колесо</a></li>
+        <li><a href="/quests"    class="<%=page==='quests'?'active':''%>">⚔️ Задания</a></li>
+        <li><a href="/history"   class="<%=page==='history'?'active':''%>">📜 История</a></li>
+        <li><a href="/settings"  class="<%=page==='settings'?'active':''%>">⚙️ Настройки</a></li>
+      </ul>
+    </nav>
+    <div class="header-right">
+      <div class="online-badge">
+        <div class="online-dot"></div>
+        <div>
+          <div class="online-count" id="online-count"><%=onlineCount%></div>
+          <div class="online-sub">ОНЛАЙН</div>
+        </div>
+      </div>
+      <% if(user){ %>
+      <div class="balance-btn" id="balance-btn">
+        <span class="balance-amount" id="balance-display"><%=user.balance.toLocaleString('ru-RU')%>₽</span>
+        <button class="balance-plus" onclick="window.location='/deposit'" title="Пополнить">+</button>
+      </div>
+      <% } %>
+      <a href="/quests" class="hbtn" title="Задания">🔔</a>
+      <a href="/settings" class="hbtn" title="Настройки">⚙️</a>
+      <% if(user){ %>
+      <div class="user-ava"><%=user.avatar?`<img src="${user.avatar}" style="width:100%;height:100%;border-radius:inherit;object-fit:cover">`:'👤'%></div>
+      <a href="/logout" class="hbtn" title="Выйти">🚪</a>
+      <% } else { %>
+      <a href="/login" class="btn btn-gold btn-sm">Войти</a>
+      <% } %>
+    </div>
+  </div>
+</header>
+
+<!-- ══ LIVE TICKER ══ -->
+<div class="live-ticker">
+  <div class="ticker-inner">
+    <div class="ticker-label">
+      <span class="tl-main">LIVE DROP</span>
+      <span class="tl-sub">ТОП ДРОПЫ</span>
+    </div>
+    <div class="ticker-scroll">
+      <div class="ticker-track" id="ticker-track">
+        <%
+          const tItems = typeof recentDrops!=='undefined'&&recentDrops.length ? recentDrops : [
+            {user:'StormGuy',gun:'Karambit',skin:'Fade',rarity:'legend',caseName:'Молния'},
+            {user:'ThunderX',gun:'AWP',skin:'Dragon Lore',rarity:'legend',caseName:'Глаз Бури'},
+            {user:'NeonFlash',gun:'AK-47',skin:'Neon Rider',rarity:'epic',caseName:'Молния'},
+            {user:'VoltMaster',gun:'M4A4',skin:'Howl',rarity:'legend',caseName:'Тайфун'},
+            {user:'EcoRush',gun:'USP-S',skin:'Kill Confirmed',rarity:'epic',caseName:'Штормовой Бриз'},
+            {user:'SkyWalker',gun:'Glock-18',skin:'Water Elemental',rarity:'rare',caseName:'Штормовой Бриз'},
+            {user:'RageMode',gun:'Desert Eagle',skin:'Blaze',rarity:'epic',caseName:'Огненный Дроп'},
+            {user:'FlashStorm',gun:'M4A1-S',skin:'Printstream',rarity:'legend',caseName:'Тайфун'},
+          ];
+          const rcMap={legend:'var(--c-legend)',epic:'var(--c-epic)',rare:'var(--c-rare)',uncommon:'var(--c-uncommon)',common:'var(--c-common)'};
+          const doubled=[...tItems,...tItems];
+        %>
+        <% doubled.forEach(d=>{ %>
+        <div class="ticker-item">
+          <div class="ticker-ava">👤</div>
+          <div class="ticker-info">
+            <span class="ticker-user"><%=d.user%></span>
+            <span class="ticker-gun"><%=d.gun%></span>
+            <span class="ticker-skin" style="color:<%=rcMap[d.rarity]||'#fff'%>;font-size:9.5px;font-weight:800;"><%=d.skin%></span>
+          </div>
+          <div class="ticker-case-reveal">📦 <%=d.caseName||'Кейс'%></div>
+        </div>
+        <% }) %>
+      </div>
+    </div>
+  </div>
+</div>

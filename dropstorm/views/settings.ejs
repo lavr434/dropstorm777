@@ -1,0 +1,132 @@
+<%- include('partials/header',{page:'settings',pageTitle:'Настройки — DropStorm'}) %>
+<main class="page-content">
+<h1 style="font-size:24px;font-weight:900;text-transform:uppercase;margin-bottom:22px;">⚙️ Настройки</h1>
+<div class="settings-grid">
+
+  <div class="settings-sec">
+    <div class="settings-sec-t">👤 Профиль</div>
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid rgba(255,255,255,.06);">
+      <div style="width:60px;height:60px;border-radius:14px;background:linear-gradient(135deg,#2a2c3e,#1a1c28);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:26px;">👤</div>
+      <div>
+        <div style="font-size:15px;font-weight:800;margin-bottom:2px"><%= user?user.username:'Guest' %></div>
+        <div style="font-size:11px;color:rgba(255,255,255,.35)">Участник с 2024</div>
+        <button class="btn btn-outline btn-sm" style="margin-top:7px;font-size:10px">Изменить аватар</button>
+      </div>
+    </div>
+    <div class="settings-row">
+      <div><div class="sr-label">Никнейм</div><div class="sr-sub">Видят другие игроки</div></div>
+      <input type="text" class="form-input" value="<%= user?user.username:'' %>" style="width:150px;padding:7px 11px;font-size:12.5px"/>
+    </div>
+    <div class="settings-row">
+      <div><div class="sr-label">Баланс</div></div>
+      <span style="font-size:15px;font-weight:900;color:var(--gold)"><%= user?user.balance.toLocaleString('ru-RU')+'₽':'—' %></span>
+    </div>
+    <div style="margin-top:14px"><button class="btn btn-gold btn-sm" onclick="showToast('✅ Профиль сохранён','success')">💾 Сохранить</button></div>
+  </div>
+
+  <div class="settings-sec">
+    <div class="settings-sec-t">🎨 Анимации</div>
+    <div class="settings-row">
+      <div><div class="sr-label">Все анимации</div><div class="sr-sub">Эффекты и переходы</div></div>
+      <div><input type="checkbox" id="tog-anim" class="toggle-input" checked onchange="document.body.classList.toggle('no-animations',!this.checked)"/>
+      <label for="tog-anim" class="toggle-label"><div class="toggle-track"><div class="toggle-thumb"></div></div></label></div>
+    </div>
+    <div class="settings-row">
+      <div><div class="sr-label">Частицы</div><div class="sr-sub">Золотые искры при выигрыше</div></div>
+      <div><input type="checkbox" id="tog-parts" class="toggle-input" checked/>
+      <label for="tog-parts" class="toggle-label"><div class="toggle-track"><div class="toggle-thumb"></div></div></label></div>
+    </div>
+    <div class="settings-row">
+      <div><div class="sr-label">Молнии на фоне</div></div>
+      <div><input type="checkbox" id="tog-light" class="toggle-input" checked onchange="toggleLightning(this.checked)"/>
+      <label for="tog-light" class="toggle-label"><div class="toggle-track"><div class="toggle-thumb"></div></div></label></div>
+    </div>
+    <div class="settings-row">
+      <div><div class="sr-label">Быстрое открытие по умолчанию</div></div>
+      <div><input type="checkbox" id="tog-quick" class="toggle-input"/>
+      <label for="tog-quick" class="toggle-label"><div class="toggle-track"><div class="toggle-thumb"></div></div></label></div>
+    </div>
+  </div>
+
+  <div class="settings-sec">
+    <div class="settings-sec-t">🔊 Звук</div>
+    <div class="settings-row">
+      <div><div class="sr-label">Звук интерфейса</div></div>
+      <div><input type="checkbox" id="tog-sound" class="toggle-input" checked onchange="document.body.classList.toggle('muted',!this.checked)"/>
+      <label for="tog-sound" class="toggle-label"><div class="toggle-track"><div class="toggle-thumb"></div></div></label></div>
+    </div>
+    <div class="settings-row">
+      <div><div class="sr-label">Звук открытия</div></div>
+      <div><input type="checkbox" id="tog-opensound" class="toggle-input" checked/>
+      <label for="tog-opensound" class="toggle-label"><div class="toggle-track"><div class="toggle-thumb"></div></div></label></div>
+    </div>
+    <div class="settings-row" style="flex-direction:column;align-items:start;gap:10px;">
+      <div class="sr-label">Громкость</div>
+      <div style="width:100%;display:flex;align-items:center;gap:10px;">
+        <span>🔈</span>
+        <input type="range" class="range-inp" id="vol" min="0" max="100" value="70"/>
+        <span id="vol-val" style="font-size:12px;font-weight:800;color:var(--gold);min-width:32px">70%</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="settings-sec">
+    <div class="settings-sec-t">🔔 Уведомления</div>
+    <div class="settings-row">
+      <div><div class="sr-label">Ежедневный бонус</div><div class="sr-sub">Напоминание раз в 24ч</div></div>
+      <div><input type="checkbox" id="tog-daily" class="toggle-input" checked/>
+      <label for="tog-daily" class="toggle-label"><div class="toggle-track"><div class="toggle-thumb"></div></div></label></div>
+    </div>
+    <div class="settings-row">
+      <div><div class="sr-label">Редкий дроп</div><div class="sr-sub">Легендарные предметы</div></div>
+      <div><input type="checkbox" id="tog-raredrop" class="toggle-input" checked/>
+      <label for="tog-raredrop" class="toggle-label"><div class="toggle-track"><div class="toggle-thumb"></div></div></label></div>
+    </div>
+    <div class="settings-row">
+      <div><div class="sr-label">Новости сайта</div></div>
+      <div><input type="checkbox" id="tog-news" class="toggle-input"/>
+      <label for="tog-news" class="toggle-label"><div class="toggle-track"><div class="toggle-thumb"></div></div></label></div>
+    </div>
+  </div>
+
+  <div class="settings-sec">
+    <div class="settings-sec-t">🌐 Язык и валюта</div>
+    <div class="settings-row">
+      <div><div class="sr-label">Язык</div></div>
+      <select class="sel-styled"><option value="ru" selected>🇷🇺 Русский</option><option value="en">🇺🇸 English</option></select>
+    </div>
+    <div class="settings-row">
+      <div><div class="sr-label">Валюта</div></div>
+      <select class="sel-styled"><option value="rub" selected>₽ RUB</option><option value="usd">$ USD</option></select>
+    </div>
+    <div style="margin-top:14px"><button class="btn btn-gold btn-sm" onclick="showToast('✅ Настройки сохранены','success')">💾 Сохранить</button></div>
+  </div>
+
+  <div class="settings-sec">
+    <div class="settings-sec-t">🔒 Безопасность</div>
+    <div class="settings-row">
+      <div><div class="sr-label">Двухфакторная аутентификация</div></div>
+      <div><input type="checkbox" id="tog-2fa" class="toggle-input"/>
+      <label for="tog-2fa" class="toggle-label"><div class="toggle-track"><div class="toggle-thumb"></div></div></label></div>
+    </div>
+    <div class="settings-row">
+      <div><div class="sr-label">Лимит ставки/день</div><div class="sr-sub">Ответственная игра</div></div>
+      <input type="number" class="form-input" placeholder="0₽" style="width:90px;padding:7px 10px;font-size:12.5px"/>
+    </div>
+    <div style="margin-top:14px;display:flex;gap:9px;flex-wrap:wrap;">
+      <button class="btn btn-ghost btn-sm" onclick="showToast('Сброс пароля (демо)','success')">🔑 Сброс пароля</button>
+      <button class="btn btn-danger btn-sm" onclick="if(confirm('Удалить аккаунт?'))showToast('Недоступно в демо','error')">🗑️ Удалить</button>
+    </div>
+  </div>
+
+</div>
+</main>
+<%- include('partials/footer') %>
+<script>
+document.getElementById('vol').addEventListener('input',function(){document.getElementById('vol-val').textContent=this.value+'%';});
+function toggleLightning(on){
+  let s=document.getElementById('ls');
+  if(!s){s=document.createElement('style');s.id='ls';document.head.appendChild(s);}
+  s.textContent=on?'':'body::before,body::after{display:none!important}';
+}
+</script>
